@@ -1752,7 +1752,6 @@ static int __do_execve_file(int fd, struct filename *filename,
 #ifdef CONFIG_KSU_SUSFS
 	if (likely(susfs_is_current_proc_no_su()))
 		goto orig_flow;
-	}
 orig_flow:
 #endif
 
