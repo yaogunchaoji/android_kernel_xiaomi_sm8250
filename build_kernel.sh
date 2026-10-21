@@ -211,7 +211,9 @@ build_target() {
             -e KSU \
             -e KSU_TAMPER_SYSCALL_TABLE \
             -e THREAD_INFO_IN_TASK \
-            -e KSU_SUSFS
+            -e KSU_SUSFS \
+            -d KSU_SUSFS_TRY_UMOUNT
+
     fi
 
     # 3. MIUI configurations
