@@ -1746,7 +1746,7 @@ static int __do_execve_file(int fd, struct filename *filename,
 	struct linux_binprm *bprm;
 	struct files_struct *displaced;
 	int retval;
-
+}
 #ifdef CONFIG_KSU_SUSFS
 	bool is_su_session = false;
 #endif // #ifdef CONFIG_KSU_SUSFS
