@@ -209,7 +209,6 @@ build_target() {
         echo "[*] Injecting KernelSU & SUSFS configurations..."
         scripts/config --file "${OUT_DIR}/.config" \
             -e KSU \
-            -e KSU_TAMPER_SYSCALL_TABLE \
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS
     fi
