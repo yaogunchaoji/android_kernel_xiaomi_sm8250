@@ -81,6 +81,18 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
 fi
 
 # ==========================================
+# NoMount Setup
+# ==========================================
+echo "==========================================="
+echo " [*] Initializing NoMount Setup"
+echo "==========================================="
+curl -LSs "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh" | bash -s dev
+echo "[+] NoMount setup finished."
+echo "==========================================="
+
+
+
+# ==========================================
 # Baseband-guard Setup
 # ==========================================
 echo "==========================================="
@@ -211,7 +223,8 @@ build_target() {
             -d SHADOW_CALL_STACK \
             -e KSU \
             -e THREAD_INFO_IN_TASK \
-            -e KSU_SUSFS
+            -e KSU_SUSFS \
+            -e NOMOUNT
     fi
 
     # 3. MIUI configurations
