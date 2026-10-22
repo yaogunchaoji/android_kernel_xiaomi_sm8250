@@ -208,6 +208,7 @@ build_target() {
     if [ "$ENABLE_KSU" -eq 1 ]; then
         echo "[*] Injecting KernelSU & SUSFS configurations..."
         scripts/config --file "${OUT_DIR}/.config" \
+            -d SHADOW_CALL_STACK \
             -e KSU \
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS
