@@ -271,6 +271,7 @@ build_target() {
     if [ "$OS_TYPE" == "aosp" ]; then
         echo "[*] Injecting AOSP specific configurations..."
         scripts/config --file "${OUT_DIR}/.config" \
+            -d SHADOW_CALL_STACK \
             -e REKERNEL \
             -e REKERNEL_NETWORK
     fi
