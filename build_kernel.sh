@@ -87,6 +87,7 @@ echo "==========================================="
 echo " [*] Initializing Hybrid Mount VFS Setup"
 echo "==========================================="
 curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
+git apply hybrid-mount.patch
 echo "[+] Hybrid Mount VFS setup finished."
 echo "==========================================="
 
@@ -224,7 +225,6 @@ build_target() {
             -e KSU \
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS \
-            -e KEYS \
             -e HYBRIDMOUNT
     fi
 
