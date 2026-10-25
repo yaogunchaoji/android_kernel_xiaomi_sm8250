@@ -87,7 +87,37 @@ echo "==========================================="
 echo " [*] Initializing Hybrid Mount VFS Setup"
 echo "==========================================="
 curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
-git apply hybrid-mount.patch
+echo "[*] Applying Hybrid Mount 4.19 compat patch..."
+if grep -q 'KERNEL_VERSION(5, 4, 0)' fs/hybridmount/hybridmount.c 2>/dev/null; then
+    echo "[=] compat patch already applied, skipping"
+elif git apply hybrid-mount.patch 2>/dev/null; then
+    echo "[+] git apply OK"
+elif patch -p1 -l --fuzz=3 < hybrid-mount.patch; then
+    echo "[+] patch(1) OK"
+else
+    echo "[!] patch failed, falling back to in-place fix..."
+    python3 - <<'PYEOF'
+p = "fs/hybridmount/hybridmount.c"
+s = open(p).read()
+old = "ret = hm_d_revalidate_common(d_inode(parent), &name.name, dentry, flags, weak);"
+new = (
+    "ret = hm_d_revalidate_common(d_inode(parent),\n"
+    "#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)\n"
+    "                                 &name.name,\n"
+    "#else\n"
+    "                                 &(struct qstr){ .name = (const unsigned char *)name.name,\n"
+    "                                                 .len = strlen((const char *)name.name) },\n"
+    "#endif\n"
+    "                                 dentry, flags, weak);"
+)
+if old in s:
+    open(p, "w").write(s.replace(old, new, 1))
+    print("[+] in-place fix applied")
+else:
+    raise SystemExit("[!] pattern not found - upstream changed, inspect fs/hybridmount/hybridmount.c manually")
+PYEOF
+fi
+
 echo "[+] Hybrid Mount VFS setup finished."
 echo "==========================================="
 
