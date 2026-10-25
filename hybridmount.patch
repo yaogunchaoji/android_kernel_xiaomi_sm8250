@@ -1,25 +1,15 @@
---- a/fs/hybridmount/hybridmount.c
-+++ b/fs/hybridmount/hybridmount.c
-@@ -1014,9 +1014,21 @@
-         dput(parent);
-         cond_resched();
-     }
- 
--    ret = hm_d_revalidate_common(d_inode(parent), &name.name, dentry, flags, weak);
-+    ret = hm_d_revalidate_common(d_inode(parent),
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
-+                                 &name.name,
-+#else
-+                                 /* < 5.4: name_snapshot::name is a bare pointer
-+                                  * to a NUL-terminated name, not a struct qstr.
-+                                  * Build one on the stack. The callee only reads
-+                                  * .name/.len and re-derives the hash from its own
-+                                  * magic salt, so leaving .hash at 0 is correct. */
-+                                 &(struct qstr){ .name = (const unsigned char *)name.name,
-+                                                 .len = strlen((const char *)name.name) },
-+#endif
-+                                 dentry, flags, weak);
-     release_dentry_name_snapshot(&name);
-     dput(parent);
-     return ret;
- }
+# ==========================================
+# Hybrid Mount VFS Setup   （在 ENABLE_KSU 分支内，紧跟 setup.sh）
+# ==========================================
+curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
+
+echo "[*] Applying Hybrid Mount 4.19 compat patch..."
+if grep -q 'KERNEL_VERSION(5, 2, 0)' fs/hybridmount/hybridmount.c; then
+    echo "[=] patch already applied, skipping"
+elif git apply hybrid-mount.patch; then
+    echo "[+] git apply OK"
+elif patch -p1 -l --fuzz=3 < hybrid-mount.patch; then
+    echo "[+] patch(1) OK"
+else
+    echo "[!] patch failed, inspect fs/hybridmount/hybridmount.c manually"; exit 1
+fi
