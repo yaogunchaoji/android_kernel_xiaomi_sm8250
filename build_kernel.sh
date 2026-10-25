@@ -81,14 +81,15 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
 fi
 
 # ==========================================
-# NoMount Setup
+# Hybrid Mount VFS Setup
 # ==========================================
 echo "==========================================="
-echo " [*] Initializing NoMount Setup"
+echo " [*] Initializing Hybrid Mount VFS Setup"
 echo "==========================================="
-curl -LSs "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh" | bash -s dev
-echo "[+] NoMount setup finished."
+curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
+echo "[+] Hybrid Mount VFS setup finished."
 echo "==========================================="
+
 
 
 
@@ -220,11 +221,11 @@ build_target() {
     if [ "$ENABLE_KSU" -eq 1 ]; then
         echo "[*] Injecting KernelSU & SUSFS configurations..."
         scripts/config --file "${OUT_DIR}/.config" \
-            -d SHADOW_CALL_STACK \
             -e KSU \
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS \
-            -e NOMOUNT
+            -e KEYS \
+            -e HYBRIDMOUNT
     fi
 
     # 3. MIUI configurations
@@ -270,7 +271,8 @@ build_target() {
         echo "[*] Injecting AOSP specific configurations..."
         scripts/config --file "${OUT_DIR}/.config" \
             -e REKERNEL \
-            -e REKERNEL_NETWORK
+            -e REKERNEL_NETWORK \
+            -d SHADOW_CALL_STACK
     fi
 
     # We always need to re-evaluate dependencies because BBG is injected unconditionally
