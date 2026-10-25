@@ -1,15 +1,39 @@
-# ==========================================
-# Hybrid Mount VFS Setup   （在 ENABLE_KSU 分支内，紧跟 setup.sh）
-# ==========================================
-curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
-
-echo "[*] Applying Hybrid Mount 4.19 compat patch..."
-if grep -q 'KERNEL_VERSION(5, 2, 0)' fs/hybridmount/hybridmount.c; then
-    echo "[=] patch already applied, skipping"
-elif git apply hybrid-mount.patch; then
-    echo "[+] git apply OK"
-elif patch -p1 -l --fuzz=3 < hybrid-mount.patch; then
-    echo "[+] patch(1) OK"
-else
-    echo "[!] patch failed, inspect fs/hybridmount/hybridmount.c manually"; exit 1
-fi
+--- a/fs/hybridmount/hybridmount.c
++++ b/fs/hybridmount/hybridmount.c
+@@ -995,6 +995,9 @@
+ static int hm_d_revalidate_ref(struct dentry *dentry, unsigned int flags, bool weak)
+ {
+     struct name_snapshot name;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
++    unsigned int name_len;
++#endif
+     struct dentry *parent;
+     unsigned int seq;
+     int ret;
+@@ -1008,6 +1011,11 @@
+         seq = read_seqcount_begin(&dentry->d_seq);
+         parent = dget_parent(dentry);
+         take_dentry_name_snapshot(&name, dentry);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
++        /* name_snapshot stores only the bytes before 5.2, not the length.
++         * Read it inside the d_seq window so it matches the snapshot. */
++        name_len = dentry->d_name.len;
++#endif
+         if (!read_seqcount_retry(&dentry->d_seq, seq))
+             break;
+         release_dentry_name_snapshot(&name);
+@@ -1015,7 +1023,14 @@
+         cond_resched();
+     }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+     ret = hm_d_revalidate_common(d_inode(parent), &name.name, dentry, flags, weak);
++#else
++    {
++        struct qstr qname = QSTR_INIT(name.name, name_len);
++        ret = hm_d_revalidate_common(d_inode(parent), &qname, dentry, flags, weak);
++    }
++#endif
+     release_dentry_name_snapshot(&name);
+     dput(parent);
+     return ret;
