@@ -254,7 +254,6 @@ build_target() {
             -e BOOTUP_RECLAIM \
             -e MI_RECLAIM \
             -e RTMM \
-            -e TMPFS_XATTR \
             -e MILLET_CGROUP \
             -e MILLET_SIG \
             -e MILLET_BINDER \
