@@ -81,15 +81,15 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
 fi
 
 # ==========================================
-# NoMount Setup
+# Hybrid Mount VFS Setup
 # ==========================================
 echo "==========================================="
-echo " [*] Initializing NoMount Setup"
+echo " [*] Initializing Hybrid Mount VFS Setup"
 echo "==========================================="
-curl -LSs "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh" | bash -s dev
-echo "[+] NoMount setup finished."
+curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
+git apply hybridmount.patch
+echo "[+] Hybrid Mount VFS setup finished."
 echo "==========================================="
-
 
 
 # ==========================================
@@ -225,7 +225,7 @@ build_target() {
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS \
             -e KSU_DEBUG \
-            -e NOMOUNT \
+            -e HYBRIDMOUNT \
             -d KSU_SUSFS_TRY_UMOUNT
     fi
 
