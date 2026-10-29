@@ -80,7 +80,16 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
     echo "[+] KernelSU setup finished."
 fi
 
-
+# ==========================================
+# Hybrid Mount VFS Setup
+# ==========================================
+echo "==========================================="
+echo " [*] Initializing Hybrid Mount VFS Setup"
+echo "==========================================="
+curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
+git apply hybridmount.patch
+echo "[+] Hybrid Mount VFS setup finished."
+echo "==========================================="
 
 
 # ==========================================
@@ -216,7 +225,8 @@ build_target() {
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS \
             -e KSU_DEBUG \
-            -d KSU_SUSFS_TRY_UMOUNT
+            -d KSU_SUSFS_TRY_UMOUNT \
+            -e HYBRIDMOUNT
     fi
 
     # 3. MIUI configurations
