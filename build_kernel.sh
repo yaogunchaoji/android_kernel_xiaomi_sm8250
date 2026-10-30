@@ -73,12 +73,15 @@ mkdir -p "$CCACHE_DIR"
 # ==========================================
 if [ "$ENABLE_KSU" -eq 1 ]; then
     echo "==========================================="
-    echo " [*] Initializing KernelSU (ReSukiSU) Setup"
+    echo " [*] Initializing KernelSU (SukiSU-Ultra) Setup"
     echo "==========================================="
-    echo "[*] Downloading and running ReSukiSU remote setup script..."
-    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+    echo "[*] Downloading and running SukiSU-Ultra remote setup script..."
+    curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
+    # fix: 4.19 没有 linux/static_call.h（5.9+ 才有），加版本条件包裹
+    sed -i 's|#include <linux/static_call.h>|#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0))\n#include <linux/static_call.h>\n#endif|' drivers/kernelsu/kernel_includes.h
     echo "[+] KernelSU setup finished."
 fi
+
 
 # ==========================================
 # Hybrid Mount VFS Setup
