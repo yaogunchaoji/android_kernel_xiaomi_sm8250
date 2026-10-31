@@ -76,7 +76,7 @@ if [ "$ENABLE_KSU" -eq 1 ]; then
     echo " [*] Initializing KernelSU (ReSukiSU) Setup"
     echo "==========================================="
     echo "[*] Downloading and running ReSukiSU remote setup script..."
-    curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+    curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
     echo "[+] KernelSU setup finished."
 fi
 
@@ -222,9 +222,14 @@ build_target() {
     if [ "$ENABLE_KSU" -eq 1 ]; then
         echo "[*] Injecting KernelSU & SUSFS configurations..."
         scripts/config --file "${OUT_DIR}/.config" \
+            -e KPROBES \
+            -e KPROBE_EVENTS \
+            -e KSU_KPROBE_HOOKS \
             -e KSU \
             -e THREAD_INFO_IN_TASK \
             -e KSU_SUSFS \
+            -e KSU_DEBUG \
+            -d KSU_SUSFS_TRY_UMOUNT \
             -e HYBRIDMOUNT
     fi
 
