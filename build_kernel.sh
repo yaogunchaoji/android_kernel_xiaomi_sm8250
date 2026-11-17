@@ -86,7 +86,7 @@ fi
 echo "==========================================="
 echo " [*] Initializing Hybrid Mount VFS Setup"
 echo "==========================================="
-curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash
+curl -LSs "https://raw.githubusercontent.com/Hybrid-Mount/meta-hybrid_mount/dev/module/vfs/setup.sh" | bash -s sync-up
 echo "[+] Hybrid Mount VFS setup finished."
 echo "==========================================="
 
